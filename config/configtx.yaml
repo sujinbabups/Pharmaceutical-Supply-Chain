@@ -1,0 +1,175 @@
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/pharma.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer.pharma.com:7050
+  - &Manufacturer
+    Name: ManufacturerMSP
+    ID: ManufacturerMSP
+    MSPDir: ../organizations/peerOrganizations/manufacturer.pharma.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.peer', 'ManufacturerMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('ManufacturerMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('ManufacturerMSP.peer')"
+  - &Wholesaler
+    Name: WholesalerMSP
+    ID: WholesalerMSP
+    MSPDir: ../organizations/peerOrganizations/wholesaler.pharma.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.peer', 'WholesalerMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('WholesalerMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('WholesalerMSP.peer')"
+  - &Pharmacies
+    Name: PharmaciesMSP
+    ID: PharmaciesMSP
+    MSPDir: ../organizations/peerOrganizations/pharmacies.pharma.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('PharmaciesMSP.admin', 'PharmaciesMSP.peer', 'PharmaciesMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('PharmaciesMSP.admin', 'PharmaciesMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('PharmaciesMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('PharmaciesMSP.peer')"
+  - &Regulators # Corrected indentation here
+    Name: RegulatorsMSP
+    ID: RegulatorsMSP
+    MSPDir: ../organizations/peerOrganizations/regulators.pharma.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('RegulatorsMSP.admin', 'RegulatorsMSP.peer', 'RegulatorsMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('RegulatorsMSP.admin', 'RegulatorsMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('RegulatorsMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('RegulatorsMSP.peer')"
+
+Capabilities:  
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  Addresses:
+    - orderer.pharma.com:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  ThreeOrgsChannel:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: etcdraft
+      EtcdRaft:
+        Consenters:
+          - Host: orderer.pharma.com
+            Port: 7050
+            ClientTLSCert: ../organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/tls/server.crt
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Manufacturer
+        - *Wholesaler
+        - *Pharmacies
+        - *Regulators
+      Capabilities: *ApplicationCapabilities

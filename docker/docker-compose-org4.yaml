@@ -1,0 +1,359 @@
+version: '3.7'
+
+volumes:
+  orderer.pharma.com:
+  peer0.manufacturer.pharma.com:
+  peer0.wholesaler.pharma.com:
+  peer0.pharmacies.pharma.com:
+  peer0.regulators.pharma.com:
+  peer1.manufacturer.pharma.com:
+  couchdb0:
+  couchdb1:
+  couchdb2:
+  couchdb3:
+  couchdb4:
+
+networks:
+  pharma-chain:
+    name: fabric_pharma-chain
+
+services:
+
+  orderer.pharma.com:
+    container_name: orderer.pharma.com
+    image: hyperledger/fabric-orderer:2.5.4
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
+      - ORDERER_CHANNELPARTICIPATION_ENABLED=true
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.pharma.com:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
+    working_dir: /root
+    command: orderer
+    volumes:
+      - ../organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.pharma.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+      - 7053:7053
+      - 9443:9443
+    networks:
+      - pharma-chain
+
+  # CouchDB instances for each organization
+  couchdb0:
+    container_name: couchdb0
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5983:5984"
+    networks:
+      - pharma-chain
+
+  couchdb1:
+    container_name: couchdb1
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5985:5984"
+    networks:
+      - pharma-chain
+
+  couchdb2:
+    container_name: couchdb2
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5986:5984"
+    networks:
+      - pharma-chain
+
+  couchdb3:
+    container_name: couchdb3
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5987:5984"
+    networks:
+      - pharma-chain
+
+  couchdb4:
+    container_name: couchdb4
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5988:5984"
+    networks:
+      - pharma-chain
+
+  peer0.manufacturer.pharma.com:
+    container_name: peer0.manufacturer.pharma.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_pharma-chain
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.manufacturer.pharma.com
+      - CORE_PEER_ADDRESS=peer0.manufacturer.pharma.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.manufacturer.pharma.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.manufacturer.pharma.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.manufacturer.pharma.com:7051
+      - CORE_PEER_LOCALMSPID=ManufacturerMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.manufacturer.pharma.com:9444
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com:/etc/hyperledger/fabric
+      - peer0.manufacturer.pharma.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 7051:7051
+      - 9444:9444
+    depends_on:
+      - couchdb0
+    networks:
+      - pharma-chain
+
+  peer1.manufacturer.pharma.com:
+    container_name: peer1.manufacturer.pharma.com
+    image: hyperledger/fabric-peer:2.5.4
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_pharma-chain
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.manufacturer.pharma.com
+      - CORE_PEER_ADDRESS=peer1.manufacturer.pharma.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.manufacturer.pharma.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.manufacturer.pharma.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.manufacturer.pharma.com:8051
+      - CORE_PEER_LOCALMSPID=ManufacturerMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.manufacturer.pharma.com:9445
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/manufacturer.pharma.com/peers/peer1.manufacturer.pharma.com:/etc/hyperledger/fabric
+      - peer1.manufacturer.pharma.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 8051:8051
+      - 9445:9445
+    depends_on:
+      - couchdb0
+    networks:
+      - pharma-chain
+
+  # Add similar peer definitions for wholesaler, pharmacies, and regulators, ensuring they point to their respective CouchDB instances (couchdb1, couchdb2, couchdb3, couchdb4).
+
+  # Example for wholesaler
+  peer0.wholesaler.pharma.com:
+    container_name: peer0.wholesaler.pharma.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_pharma-chain
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.wholesaler.pharma.com
+      - CORE_PEER_ADDRESS=peer0.wholesaler.pharma.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.wholesaler.pharma.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.wholesaler.pharma.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.wholesaler.pharma.com:9051
+      - CORE_PEER_LOCALMSPID=WholesalerMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.wholesaler.pharma.com:9446
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com:/etc/hyperledger/fabric
+      - peer0.wholesaler.pharma.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 9051:9051
+      - 9446:9446
+    depends_on:
+      - couchdb1
+    networks:
+      - pharma-chain
+
+  # Repeat for pharmacies and regulators, pointing to their respective CouchDB instances.
+
+
+
+  peer0.pharmacies.pharma.com:
+    container_name: peer0.pharmacies.pharma.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_pharma-chain
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.pharmacies.pharma.com
+      - CORE_PEER_ADDRESS=peer0.pharmacies.pharma.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.pharmacies.pharma.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.pharmacies.pharma.com:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pharmacies.pharma.com:10051
+      - CORE_PEER_LOCALMSPID=PharmaciesMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.pharmacies.pharma.com:9447
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com:/etc/hyperledger/fabric
+      - peer0.pharmacies.pharma.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 10051:10051
+      - 9447:9447
+    depends_on:
+      - couchdb2
+    networks:
+      - pharma-chain
+
+  peer0.regulators.pharma.com:
+    container_name: peer0.regulators.pharma.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_pharma-chain
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.regulators.pharma.com
+      - CORE_PEER_ADDRESS=peer0.regulators.pharma.com:12051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.regulators.pharma.com:12052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:12052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.regulators.pharma.com:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.regulators.pharma.com:12051
+      - CORE_PEER_LOCALMSPID=RegulatorsMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.regulators.pharma.com:9449
+      - CORE_METRICS_PROVIDER=prometheus
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations/peerOrganizations/regulators.pharma.com/peers/peer0.regulators.pharma.com:/etc/hyperledger/fabric
+      - peer0.regulators.pharma.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 12051:12051
+      - 9449:9449
+    depends_on:
+      - couchdb3
+    networks:
+      - pharma-chain
+
+
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:2.5.4
+    labels:
+      service: hyperledger-fabric
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+    depends_on:
+      - peer0.manufacturer.pharma.com
+      - peer0.wholesaler.pharma.com
+      - peer0.pharmacies.pharma.com
+      - peer0.regulators.pharma.com
+      - peer1.manufacturer.pharma.com
+    networks:
+      - pharma-chain
