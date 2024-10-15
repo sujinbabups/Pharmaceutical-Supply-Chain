@@ -91,7 +91,7 @@ sleep 1
 
 # echo "—---------------package chaincode—-------------"
 
-# peer lifecycle chaincode package pharmachain.tar.gz --path ${PWD}/../Chaincode/KBA-pharmamobile --lang node --label pharmachain_1.0
+# peer lifecycle chaincode package pharmachain.tar.gz --path ${PWD}/../Chaincode/chaincode-javascript --lang node --label pharmachain_1.0
 # sleep 1
 
 # echo "—---------------install chaincode in Manufacturer peer—-------------"
@@ -106,7 +106,7 @@ sleep 1
 
 # echo "—---------------Approve chaincode in Manufacturer peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name KBA-pharmamobile --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 # sleep 2
 
 export CORE_PEER_LOCALMSPID=WholesalerMSP
@@ -155,7 +155,7 @@ sleep 1
 
 # echo "—---------------Approve chaincode in wholesaler peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name KBA-pharmamobile --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 # sleep 1
 
 export CORE_PEER_LOCALMSPID=PharmaciesMSP
@@ -206,17 +206,17 @@ peer channel getinfo -c $CHANNEL_NAME
 
 # echo "—---------------Approve chaincode in pharmacies peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name KBA-pharmamobile --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 # sleep 1
 
 # echo "—---------------Commit chaincode in pharmacies peer—-------------"
 
-# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name KBA-pharmamobile --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
+# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
 
-# peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name KBA-pharmamobile --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $wholesaler_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $pharmacies_PEER_TLSROOTCERT
+# peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $wholesaler_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $pharmacies_PEER_TLSROOTCERT
 # sleep 1
 
-# peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name KBA-pharmamobile --cafile $ORDERER_CA
+# peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name chaincode-javascript --cafile $ORDERER_CA
 
 export CORE_PEER_LOCALMSPID=RegulatorsMSP
 export CORE_PEER_ADDRESS=localhost:12051
