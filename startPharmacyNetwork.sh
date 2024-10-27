@@ -50,6 +50,7 @@ export CORE_PEER_ADDRESS=localhost:7051
 export MANUFACTURER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com/tls/ca.crt
 export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
 export PHARMACIES_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+export REGULATOR_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/regulators.pharma.com/peers/peer0.regulators.pharma.com/tls/ca.crt
 sleep 2
 
 echo "—---------------Join Manufacturer peer to the channel—-------------"
@@ -89,25 +90,26 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------package chaincode—-------------"
+echo "—---------------package chaincode—-------------"
 
-# peer lifecycle chaincode package pharmachain.tar.gz --path ${PWD}/../Chaincode/chaincode-javascript --lang node --label pharmachain_1.0
-# sleep 1
+peer lifecycle chaincode package chainPharma.tar.gz --path ${PWD}/../Chaincode/Pharma-Chain --lang node --label chainPharma.0
+sleep 1
 
-# echo "—---------------install chaincode in Manufacturer peer—-------------"
+echo "—---------------install chaincode in Manufacturer peer—-------------"
 
-# peer lifecycle chaincode install pharmachain.tar.gz
-# sleep 3
+peer lifecycle chaincode install chainPharma.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
-# sleep 1
+peer lifecycle chaincode queryinstalled
+sleep 1
 
-# export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid pharmachain.tar.gz)
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid chainPharma.tar.gz)
 
-# echo "—---------------Approve chaincode in Manufacturer peer—-------------"
+echo "—---------------Approve chaincode in Manufacturer peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 2
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+
+
 
 export CORE_PEER_LOCALMSPID=WholesalerMSP
 export CORE_PEER_ADDRESS=localhost:9051
@@ -146,17 +148,18 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------install chaincode in wholesaler peer—-------------"
+echo "—---------------install chaincode in wholesaler peer—-------------"
 
-# peer lifecycle chaincode install pharmachain.tar.gz
-# sleep 3
+peer lifecycle chaincode install chainPharma.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
+peer lifecycle chaincode queryinstalled
 
-# echo "—---------------Approve chaincode in wholesaler peer—-------------"
+echo "—---------------Approve chaincode in wholesaler peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+
+
 
 export CORE_PEER_LOCALMSPID=PharmaciesMSP
 export CORE_PEER_ADDRESS=localhost:10051
@@ -197,26 +200,17 @@ sleep 1
 
 peer channel getinfo -c $CHANNEL_NAME
 
-# echo "—---------------install chaincode in pharmacies peer—-------------"
+echo "—---------------install chaincode in Pharmacy peer—-------------"
 
-# peer lifecycle chaincode install pharmachain.tar.gz
-# sleep 3
+peer lifecycle chaincode install chainPharma.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
+peer lifecycle chaincode queryinstalled
 
-# echo "—---------------Approve chaincode in pharmacies peer—-------------"
+echo "—---------------Approve chaincode in Pharmacy peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
-
-# echo "—---------------Commit chaincode in pharmacies peer—-------------"
-
-# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
-
-# peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name chaincode-javascript --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $wholesaler_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $pharmacies_PEER_TLSROOTCERT
-# sleep 1
-
-# peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name chaincode-javascript --cafile $ORDERER_CA
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 
 export CORE_PEER_LOCALMSPID=RegulatorsMSP
 export CORE_PEER_ADDRESS=localhost:12051
@@ -254,3 +248,26 @@ cd ..
 
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA
 sleep 1
+
+
+
+
+echo "—---------------install chaincode in Regulator peer—-------------"
+
+peer lifecycle chaincode install chainPharma.tar.gz
+sleep 3
+
+peer lifecycle chaincode queryinstalled
+
+echo "—---------------Approve chaincode in Regulator peer—-------------"
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
+
+echo "—---------------Commit chaincode in Regulator peer—-------------"
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --sequence 1 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --tls --cafile $ORDERER_CA --output json
+
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --sequence 1 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $WHOLESALER_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT --peerAddresses localhost:12051 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT
+sleep 1
+
+peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name Pharma-Chain --cafile $ORDERER_CA

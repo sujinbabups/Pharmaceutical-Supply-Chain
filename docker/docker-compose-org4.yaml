@@ -200,7 +200,6 @@ services:
     networks:
       - pharma-chain
 
-  # Add similar peer definitions for wholesaler, pharmacies, and regulators, ensuring they point to their respective CouchDB instances (couchdb1, couchdb2, couchdb3, couchdb4).
 
   # Example for wholesaler
   peer0.wholesaler.pharma.com:
@@ -243,8 +242,6 @@ services:
       - couchdb1
     networks:
       - pharma-chain
-
-  # Repeat for pharmacies and regulators, pointing to their respective CouchDB instances.
 
 
 
