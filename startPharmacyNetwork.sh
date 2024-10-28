@@ -97,7 +97,7 @@ sleep 1
 
 echo "—---------------install chaincode in Manufacturer peer—-------------"
 
-peer lifecycle chaincode install chainPharma.tar.gz
+peer lifecycle chaincode install chainPharma.tar.gz   
 sleep 3
 
 peer lifecycle chaincode queryinstalled
@@ -268,6 +268,102 @@ echo "—---------------Commit chaincode in Regulator peer—-------------"
 peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --sequence 1 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --tls --cafile $ORDERER_CA --output json
 
 peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --channelID $CHANNEL_NAME --name Pharma-Chain --version 1.0 --sequence 1 --collections-config ../Chaincode/Pharma-Chain/collection-pharma.json --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $WHOLESALER_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT --peerAddresses localhost:12051 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT
-sleep 1
+sleep 1s
 
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name Pharma-Chain --cafile $ORDERER_CA
+
+echo "—----------------------END—-----------------------"
+
+
+
+# Manufacture Terminal
+
+# export FABRIC_CFG_PATH=./peercfg
+# export CHANNEL_NAME=pharmachain
+# export CORE_PEER_LOCALMSPID=ManufacturerMSP
+# export CORE_PEER_TLS_ENABLED=true
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/users/Admin@manufacturer.pharma.com/msp
+# export CORE_PEER_ADDRESS=localhost:7051
+# export ORDERER_CA=${PWD}/organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/msp/tlscacerts/tlsca.pharma.com-cert.pem
+# export MANUFACTURER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com/tls/ca.crt
+# export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
+# export PHARMACIES_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+# export REGULATOR_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/regulators.pharma.com/peers/peer0.regulators.pharma.com/tls/ca.crt
+
+
+
+# export BATCH_ID=$(echo -n "BATCH123" | base64 | tr -d \\n)
+# export DRUG_NAME=$(echo -n "Paracetamol" | base64 | tr -d \\n)
+# export BATCH_NUMBER=$(echo -n "BN12345" | base64 | tr -d \\n)
+# export EXPIRATION_DATE=$(echo -n "2025-12-31" | base64 | tr -d \\n)
+# export PRODUCTION_DATE=$(echo -n "2024-01-01" | base64 | tr -d \\n)
+# export MANUFACTURER_ID=$(echo -n "Manufacturer001" | base64 | tr -d \\n)
+
+
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n Pharma-Chain --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $WHOLESALER_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT -c '{"Args":["PharmaSupplyChainContract:registerDrug","BATCH123","Paracetamol","BN12345","2025-12-31","2024-01-01","Manufacturer001"]}'
+
+# peer chaincode query -C $CHANNEL_NAME -n Pharma-Chain -c '{"Args":["getDrugDetails","BATCH123"]}'
+
+
+# Wholesaler Terminal
+
+# export FABRIC_CFG_PATH=./peercfg
+# export CHANNEL_NAME=pharmachain
+# export CORE_PEER_LOCALMSPID=WholesalerMSP
+# export CORE_PEER_TLS_ENABLED=true
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/users/Admin@wholesaler.pharma.com/msp
+# export CORE_PEER_ADDRESS=localhost:9051
+# export ORDERER_CA=${PWD}/organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/msp/tlscacerts/tlsca.pharma.com-cert.pem
+# export MANUFACTURER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com/tls/ca.crt
+# export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
+# export PHARMACIES_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n Pharma-Chain --peerAddresses localhost:7051 --tlsRootCertFiles $MANUFACTURER_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT -c  '{"function":"distributeDrug","Args":["batch1", "WHOLESALER001", "2024-10-27T10:30:00Z", "Temperature Controlled"]}'
+# peer chaincode query -C $CHANNEL_NAME -n Pharma-Chain -c '{"Args":["getDrug","batch1"]}'
+
+#Pharmacies Terminal
+
+# export FABRIC_CFG_PATH=./peercfg
+# export CHANNEL_NAME=pharmachain
+# export CORE_PEER_LOCALMSPID=PharmaciesMSP
+# # export CORE_PEER_TLS_ENABLED=true
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/users/Admin@pharmacies.pharma.com/msp
+# export CORE_PEER_ADDRESS=localhost:10051
+# export ORDERER_CA=${PWD}/organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/msp/tlscacerts/tlsca.pharma.com-cert.pem
+# export MANUFACTURER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/manufacturer.pharma.com/peers/peer0.manufacturer.pharma.com/tls/ca.crt
+# export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
+# export PHARMACIES_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+
+# peer chaincode query -C $CHANNEL_NAME -n Pharma-Chain -c '{"Args":["DrugDetailsCollection:getDrugDetails","BATCH123"]}'
+
+
+
+# regulators Termminal
+
+# export FABRIC_CFG_PATH=./peercfg
+# export CHANNEL_NAME=pharmachain
+# export CORE_PEER_LOCALMSPID=RegulatorsMSP
+# export CORE_PEER_TLS_ENABLED=true
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/regulators.pharma.com/peers/peer0.regulators.pharma.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/regulators.pharma.com/users/Admin@regulators.pharma.com/msp
+# export CORE_PEER_ADDRESS=localhost:12051
+# export ORDERER_CA=${PWD}/organizations/ordererOrganizations/pharma.com/orderers/orderer.pharma.com/msp/tlscacerts/tlsca.pharma.com-cert.pem
+# export PHARMACIES_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/pharmacies.pharma.com/peers/peer0.pharmacies.pharma.com/tls/ca.crt
+# export WHOLESALER_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/wholesaler.pharma.com/peers/peer0.wholesaler.pharma.com/tls/ca.crt
+# export REGULATOR_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/regulators.pharma.com/peers/peer0.regulators.pharma.com/tls/ca.crt
+
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.pharma.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n Pharma-Chain -c '{"function":"verifyAndDispenseDrug","Args":["batch1", "PHARMACY001"]}' --peerAddresses localhost:12051 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT --peerAddresses localhost:7051 --tlsRootCertFiles $WHOLESALER_PEER_TLSROOTCERT
+
+#  peer chaincode invoke \
+#   -o localhost:7050 \
+#   --ordererTLSHostnameOverride orderer.pharma.com \
+#   --tls \
+#   --cafile $ORDERER_CA \
+#   -C $CHANNEL_NAME \
+#   -n Pharma-Chain \
+#   -c '{"function":"verifyAndDispenseDrug","Args":["batch1", "PHARMACY001"]}' \
+#   --peerAddresses localhost:12051 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT \
+#   --peerAddresses localhost:10051 --tlsRootCertFiles $PHARMACIES_PEER_TLSROOTCERT
